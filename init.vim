@@ -1,4 +1,6 @@
 call plug#begin()
+Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+Plug 'Shougo/vimshell'
 Plug 'fatih/vim-go'
 Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
@@ -11,14 +13,25 @@ Plug 'jistr/vim-nerdtree-tabs'
 Plug 'Valloric/YouCompleteMe'
 Plug 'xolox/vim-session'
 Plug 'xolox/vim-misc'
-Plug 'qpkorr/vim-bufkill'
+Plug 'jlanzarotta/bufexplorer'
+Plug 'rbgrouleff/bclose.vim'
+Plug 'airblade/vim-gitgutter'
+Plug 'nathanaelkane/vim-indent-guides'
+Plug 'vimlab/split-term.vim'
+Plug 'sebdah/vim-delve'
+Plug 'myusuf3/numbers.vim'
 call plug#end()
+
+filetype plugin indent on
 
 "Colors
 syntax enable
 colorscheme jellybeans
+set background=dark
 
 filetype plugin on
+
+:set ww+=<,> 
 
 
 "Switch between windows
@@ -28,16 +41,15 @@ nmap <silent> <A-Left> :wincmd h<CR>
 nmap <silent> <A-Right> :wincmd l<CR>
 
 "Switch between tabs
-nnoremap <C-S-Left> :BP<CR>
-nnoremap <C-S-Right> :BN<CR>
-inoremap <C-S-Left>  <ESC>:BP<CR>
-inoremap <C-S-Right> <ESC>:BN<CR>
-nnoremap <F28>    :BD<CR>
-
+nnoremap <C-S-Left> :wincmd H<CR>
+nnoremap <C-S-Right> :wincmd L<CR>
+nnoremap <C-S-Up>  :wincmd K<CR>
+nnoremap <C-S-Down> :wincmd J<CR>
+nnoremap <F28>    :Bclose<CR>
 
 "Copy/paste to system
-vmap <C-S-x> "+x
-vmap <C-S-c> "+y
+vmap <C-x> "+x
+vmap <C-c> "+y
 imap <C-v> "+gP
 
 "Saving buffers
@@ -89,3 +101,33 @@ set completeopt-=preview
 
 "Sessions saving
 let g:session_directory="~/.vim/sessions"
+
+function! OpenBuffer() 
+    let c = 0
+    let wincount = winnr('$')
+    while !empty(getbufvar(+expand("<abuf>"), "&buftype")) && c < wincount
+        exec 'wincmd w'
+        let c = c + 1
+    endwhile 
+    exec 'BufExplorer'
+endfunction 
+noremap <silent> <C-b> :call OpenBuffer()<CR>
+
+hi IndentGuidesOdd  ctermbg=darkgrey
+hi IndentGuidesEven ctermbg=black
+let g:indent_guides_start_level=1
+let g:indent_guides_guide_size=1
+let g:indent_guides_enable_on_vim_startup=1
+
+"Terminals
+nnoremap <S-t> :Term <CR>
+tnoremap <Esc> <C-\><C-n>
+" Use current directory as vimshell prompt.
+let g:vimshell_prompt_expr =
+\ 'escape(fnamemodify(getcwd(), ":~").">", "\\[]()?! ")." "'
+let g:vimshell_prompt_pattern = '^\%(\f\|\\.\)\+> '
+
+set nopaste
+set tabstop=4
+set shiftwidth=4
+set expandtab
